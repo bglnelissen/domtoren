@@ -1,0 +1,19 @@
+*.FCStd
+*.FCStd1
+*.FCBak
+*.stl
+*.step
+*.3mf
+*.gcode
+*.bundle
+Export */
+Bronnen/
+Foto's*/
+__pycache__/
+.pytest_cache/
+.superpowers/
+.DS_Store
+# English release files for GitHub
+!models/
+!models/*.stl
+!models/*.step
