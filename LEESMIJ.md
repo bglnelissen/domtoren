@@ -12,8 +12,8 @@ brim 5 mm alleen buiten, geen support, plek op het bed random (`kies_plek.py`), 
 
 Deze map staat openbaar op https://github.com/bglnelissen/domtoren (Bas, 20-11: "alleen wat bezoekers lezen" in het
 Engels). Engels: `README.md` (met bronnen en uitleg van de licentie), `LICENSE` (CC BY-NC 4.0, officiële tekst),
-`models/` (de printversie H als STL en de STEP's 1:1000, 1:300 en 1:100; bij een nieuwe printversie hier een kopie
-neerzetten) en `images/dom-tower-render.png` (render van G 1:100 met PyVista). Code en notities blijven Nederlands.
+`models/` (de printversie H als STL, zonder klok, en de STEP's met klok: M 1:1000, L 1:300 en K 1:100; bij een nieuwe
+printversie hier een kopie neerzetten) en `images/` (renders van K 1:100 met PyVista: de hele toren en de klok). Code en notities blijven Nederlands.
 
 - **Geschiedenis:** opnieuw begonnen met één schone commit, want in de oude stond het privé e-mailadres van Bas. De oude
   geschiedenis (29 commits, 19-20 november) staat in `domtoren-geschiedenis-tot-2026-11-20.bundle` (niet in git;
@@ -80,7 +80,7 @@ schrijven terwijl FreeCAD draait): eerst FreeCAD sluiten, of bouwen met `FCSTD=F
 Instellingen (allemaal optioneel): `SCHAAL` (1000; ook 300 en 100), `VARIANT` ("A"), `GELEDING` (alleen die geleding,
 bijvoorbeeld `GELEDING='lantaarn'`; de bestanden krijgen dan de naam van de geleding erbij), `AANDIK` (`aandik_niveau`,
 0 tot 3, standaard 2), `HOL` (True: hol en met een label in de bodem, zie onder; `False`: massief en zonder label),
-`FCSTD` (True; `False` schrijft geen FCStd, alleen STEP, STL en rapport; zo kan er gebouwd worden terwijl FreeCAD
+`KLOK` (True: de vier wijzerplaten in de galmgaten van vierkant_2, zie `klok()` in `domtoren_vormen.py`; `False`: zonder klok; Bas 20-11), `KLOKTIJD` (stand van de wijzers als `"u:mm"`; standaard 4:16, Bas 20-11: "default wijzerstand 16 over 4"), `FCSTD` (True; `False` schrijft geen FCStd, alleen STEP, STL en rapport; zo kan er gebouwd worden terwijl FreeCAD
 draait). Met `FCSTD=True` en FreeCAD open volgt een RuntimeError voor elk FCStd in de projectmap en voor elk bestaand
 FCStd; een nieuw FCStd in een andere map (de kladmap van de tests) mag wel.
 

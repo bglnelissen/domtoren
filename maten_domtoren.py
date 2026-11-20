@@ -105,6 +105,21 @@ MATEN = [
     ("galmgat2_zuid_lichten", 2, "het galmgat in de zuidgevel is tweedelig [HP1965]"),
     ("galmgat2_staaf_b", 300, "stijlen van de tracering in het galmgat, opstand 1899 [HUA1899B]: 20 px bij 15,7 mm/px"),
     ("dwarslijst2_z", 52000, "dwarslijst in de nissen 'op ca. 2/5 van de hoogte' [HP1965], hoogte uit opstand 1899 [HUA1899B]"),
+    # De klok (Bas, 20-11: "ik mis de klok op de dom"): in elk galmgat een wijzerplaat in een vierkant kader, op de
+    # dwarslijst, vlak voor de stijlen van de tracering. Gemeten op de foto van 2025 [FOTO2025] (westgevel, recht van
+    # voren): het kader is 71 px breed en even breed als het galmgat, dus 4 000 / 71,4 = 56 mm/px.
+    ("klok_aantal", 4, "wijzerplaten, één voor elke windrichting [DUIC2026]; ook [ERFGOED] (uurwerk): 'de assen van de 4 wijzerplaten'"),
+    ("klok_d", 4000, "buitenmaat van het vierkante kader om de wijzerplaat, 'een diameter van zo'n vier meter' [DUIC2026]; op [FOTO2025] 71 px, even breed als het galmgat"),
+    ("klok_z0", 52000, "onderkant van het kader: het staat op de dwarslijst in het galmgat (dwarslijst2_z) [FOTO2025]"),
+    ("klok_kader_b", 100, "staaf van het vierkante kader, [FOTO2025]: ± 1,8 px bij 56 mm/px"),
+    ("klok_ring_b", 600, "breedte van de ring (wijzerplaat met de cijfers), [FOTO2025]: buiten 69,5 px (3 890), binnen 48 px (2 700) bij 56 mm/px"),
+    ("klok_wijzer_b", 250, "breedte van de wijzers, [FOTO2025]: ± 4,5 px bij 56 mm/px"),
+    ("klok_minuutwijzer_l", 1770, "lengte van de minutenwijzer vanaf het midden, [FOTO2025]: 31,7 px bij 56 mm/px"),
+    ("klok_uurwijzer_l", 1210, "lengte van de uurwijzer vanaf het midden, [FOTO2025]: 21,7 px bij 56 mm/px"),
+    ("klok_naaf_d", 400, "geschat: naaf in het midden waar de wijzers aan vastzitten, ± 7 px op [FOTO2025]"),
+    ("klok_dikte", 150, "geschat: dikte van kader, ring en wijzers (loodrecht op de gevel); geen bron"),
+    ("klok_uur", 4, "stand van de wijzers: 16 minuten over 4, keuze van Bas [KEUZE] (op [FOTO2025] half tien)"),
+    ("klok_minuut", 16, "stand van de minutenwijzer, zie klok_uur [KEUZE]"),
     ("waterlijst2_h", 920, "geschat: verschil tussen het begin van het achtkant (69 000) en de bovenkant van het tweede vierkant (68 080), beide [HP1965]; vermoedelijk waterlijst en vloer van de tweede omgang. Ligt BOVEN vierkant2_z1, onderin de geleding lantaarn"),
     ("balustrade2_h", 3500, "balustrade van de tweede omgang (zonder pinakels), opstand 1899 [HUA1899B], foto 2025 [FOTO2025]"),
     ("pinakel2_h", 6400, "pinakels van de tweede omgang, boven de waterlijst, opstand 1899 [HUA1899B]"),
@@ -195,7 +210,8 @@ LIJSTEN = [
 ]
 
 # Onderdelen die aangedikt mogen worden als ze op een kleine schaal te klein worden (startlijst uit ontwerp.md).
-KENMERKEND = {"pinakel", "lantaarn_open", "galmgat", "doorgang", "steunbeer", "hoofdlijst", "balustrade", "bekroning"}
+KENMERKEND = {"pinakel", "lantaarn_open", "galmgat", "doorgang", "steunbeer", "hoofdlijst", "balustrade", "bekroning",
+              "klok"}
 
 # Per alias de sleutel van de belangrijkste bron in bronnen.md (de andere bronnen staan in het commentaar).
 BRONNEN = {
@@ -255,6 +271,18 @@ BRONNEN = {
     "galmgat2_z0": "HP1965",
     "galmgat2_h": "HUA1899B",
     "dwarslijst2_z": "HUA1899B",
+    "klok_aantal": "DUIC2026",
+    "klok_d": "DUIC2026",
+    "klok_z0": "FOTO2025",
+    "klok_kader_b": "FOTO2025",
+    "klok_ring_b": "FOTO2025",
+    "klok_wijzer_b": "FOTO2025",
+    "klok_minuutwijzer_l": "FOTO2025",
+    "klok_uurwijzer_l": "FOTO2025",
+    "klok_naaf_d": "AFLEIDING",
+    "klok_dikte": "AFLEIDING",
+    "klok_uur": "KEUZE",
+    "klok_minuut": "KEUZE",
     "waterlijst2_h": "AFLEIDING",
     "balustrade2_h": "HUA1899B",
     "pinakel2_h": "HUA1899B",

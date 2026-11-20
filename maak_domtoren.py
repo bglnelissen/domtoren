@@ -6,8 +6,10 @@
 #   /Applications/FreeCAD.app/Contents/Resources/bin/freecadcmd -c "SCHAAL=1000; VARIANT='A'; exec(open('maak_domtoren.py').read())"
 # Instellingen (globals, alle optioneel): SCHAAL (1000), VARIANT ("A"), GELEDING (None = alles, of bijvoorbeeld
 # "lantaarn"), AANDIK (aandik_niveau, 2), HOL (True: hol met een wand van WAND_PRINT en een label in de bodem; False =
-# massief, zonder label), LABEL (True; False = hol maar zonder label in de bodem), FCSTD (True; False = geen FCStd
-# schrijven, bijvoorbeeld omdat FreeCAD draait: dan alleen STEP, STL en rapport).
+# massief, zonder label), LABEL (True; False = hol maar zonder label in de bodem), KLOK (True: de vier wijzerplaten in
+# de galmgaten van vierkant_2; False = zonder klok), KLOKTIJD ("4:16", de standaard uit maten_domtoren.py; een andere
+# stand van de wijzers als "u:mm"), FCSTD (True; False = geen FCStd schrijven, bijvoorbeeld omdat
+# FreeCAD draait: dan alleen STEP, STL en rapport).
 #
 # De bron van alle maten is maten_domtoren.py. De spreadsheet Maten in het FCStd is een leesbare kopie: daar wijzigen
 # heeft geen effect. Een maat wijzigen = maten_domtoren.py aanpassen en dit script opnieuw draaien.
@@ -77,7 +79,7 @@ def _getal(x: float) -> str:
     return f"{x:g}"
 
 
-def _maak_spreadsheet(doc, m: dict, schaal: float, aandik: float, hol: bool):
+def _maak_spreadsheet(doc, m: dict, schaal: float, aandik: float, hol: bool, klok: bool = True):
     """Spreadsheet Maten: instellingen bovenaan, dan de maten die voor deze bouw afwijken (als die er zijn),
     daaronder een kopie van MATEN met de bron in kolom C."""
     sh = doc.addObject("Spreadsheet::Sheet", "Maten")
@@ -95,6 +97,7 @@ def _maak_spreadsheet(doc, m: dict, schaal: float, aandik: float, hol: bool):
         ("min_z", "=laag * schaal", "kleinste detailhoogte in het echt (berekend)"),
         ("aandik_niveau", _getal(aandik), "0 = uit, 1 = net printbaar, 2 = goed zichtbaar, 3 = maquette (ontwerp.md)"),
         ("switch_hol", 1 if hol else 0, "1 = hol met een wand van wand_print en een label in de bodem, 0 = massief"),
+        ("switch_klok", 1 if klok else 0, "1 = de klok (wijzerplaten in de galmgaten van vierkant_2), 0 = zonder klok"),
         ("wand_print", WAND_PRINT, "wanddikte van een hol deel op de print, vanaf de massa (mm)"),
         ("wand_min_print", WAND_MIN_PRINT, "dunste wand tussen de holte en een nis of opening op de print (mm)"),
         ("printhoogte_max", PRINTHOOGTE_MAX, "maximale hoogte van een printdeel (mm)"),
@@ -146,14 +149,15 @@ def _een_solid(vorm: Part.Shape, naam: str) -> Part.Shape:
     return vorm.Solids[0]
 
 
-def bouw_geleding(gl: dict, geledingen: dict, m: dict, g: Grenzen) -> tuple:
+def bouw_geleding(gl: dict, geledingen: dict, m: dict, g: Grenzen, klok: bool = True) -> tuple:
     """Eén geleding in echte maten: (massa + alle plus) - (alle min - alle bewaar).
 
     Plus in één multiFuse; de min samengevoegd, daar de bewaar-vormen af, dan één cut. Zo blijft wat bewaard moet
     (hoekdammen, tracering in een opening) staan, ook als een min eroverheen loopt. De onderdelen komen uit
-    `onderdelen()` (domtoren_vormen.py). Geeft (vorm, rapport) met rapportrijen (soort, status, naam).
+    `onderdelen()` (domtoren_vormen.py); `klok` = False laat de klok weg. Geeft (vorm, rapport) met rapportrijen
+    (soort, status, naam).
     """
-    vorm_onderdelen = samen([bouwer(gl, geledingen, m, g) for bouwer in onderdelen(gl["naam"])])
+    vorm_onderdelen = samen([bouwer(gl, geledingen, m, g) for bouwer in onderdelen(gl["naam"], klok)])
     vorm = _fuse([massa(gl, m)] + vorm_onderdelen.plus)
     if vorm_onderdelen.min:
         snijden = _fuse(vorm_onderdelen.min)
@@ -601,7 +605,7 @@ def _paden(variant: str, schaal: float, geleding: str | None, uitmap: str) -> di
 
 def bouw(schaal: float = 1000, variant: str = "A", geleding: str | None = None,
          aandik: float = 2.0, hol: bool = True, opslaan: bool = True, maten: dict | None = None,
-         fcstd: bool = True, uitmap: str | None = None, label: bool = True) -> dict:
+         fcstd: bool = True, uitmap: str | None = None, label: bool = True, klok: bool = True) -> dict:
     """Bouwt het document 'Domtoren <variant>' met Maten, één Part::Feature per geleding en Toren_1_<schaal>.
 
     Geeft {"doc", "lichamen" (naam → vorm in echte maten, massief), "toren" (geschaald, één solid), "rapport"
@@ -610,6 +614,7 @@ def bouw(schaal: float = 1000, variant: str = "A", geleding: str | None = None,
     `geleding` = alleen die geleding. `hol` (taak 7): de holte uit kern() eruit en het label uit plaats_label() in de
     bodem; per geleding een rij ("hol", status) en een rij ("label", status) in het rapport. Zonder hol geen van beide.
     `label` = False: hol zonder label (rapport: ("label", "uit")); Bas 20-11: "een 1:100 model zonder letter".
+    `klok` = False: zonder de klok in de galmgaten (Bas 20-11: "de optie om de klok aan en uit te zetten").
     Met `opslaan`: FCStd, STEP (echte maten), STL in 'Export 1-<schaal>/' en het rapport, dan fcstd_zichtbaar.py.
     `maten` (alias → waarde) vervangt of vult maten uit maten_domtoren.py aan voor deze ene bouw (om iets te proberen
     en voor de tests); ze staan dan apart in de spreadsheet. GELEDINGEN zelf veranderen er niet door.
@@ -635,13 +640,13 @@ def bouw(schaal: float = 1000, variant: str = "A", geleding: str | None = None,
     doc.LicenseURL = LICENTIE_URL
     doc.Comment = (f"Domtoren Utrecht, variant {variant}, schaal 1:{_getal(schaal)}. Gebouwd door maak_domtoren.py uit "
                    "maten_domtoren.py; bronnen en licenties in bronnen.md.")
-    _maak_spreadsheet(doc, m, schaal, aandik, hol)
+    _maak_spreadsheet(doc, m, schaal, aandik, hol, klok)
 
     lichamen, rapport, rapport_per_geleding = {}, [], []
     for gl in GELEDINGEN:
         if geleding is not None and gl["naam"] != geleding:
             continue
-        vorm, regels = bouw_geleding(gl, geledingen, m, g)
+        vorm, regels = bouw_geleding(gl, geledingen, m, g, klok)
         lichamen[gl["naam"]] = vorm
         rapport += [(soort, status) for soort, status, _ in regels]
         rapport_per_geleding += [(gl["naam"], soort, naam, status) for soort, status, naam in regels]
@@ -717,7 +722,9 @@ def _sla_op(doc, variant, schaal, aandik, hol, geleding, echt, toren, rapport_pe
     controleer_mesh(mesh, holtes, os.path.basename(paden["stl"]))
     controleer_stl(paden["stl"], holtes, os.path.basename(paden["stl"]))
     bb = toren.BoundBox
-    regels = [f"{naam}, schaal 1:{_getal(schaal)}, aandik_niveau {_getal(aandik)}, hol {'aan' if hol else 'uit'}",
+    klok_aan = any(soort == "klok" for _, soort, _, _ in rapport_per_geleding)
+    regels = [f"{naam}, schaal 1:{_getal(schaal)}, aandik_niveau {_getal(aandik)}, hol {'aan' if hol else 'uit'}, "
+              f"klok {'aan' if klok_aan else 'uit'}",
               f"op de print: {bb.XLength:.2f} x {bb.YLength:.2f} x {bb.ZLength:.2f} mm, "
               f"volume {toren.Volume / 1000:.1f} cm3; STL {mesh.CountFacets} driehoeken, "
               f"{1 + holtes} component(en): 1 buitenschil en {holtes} dichte holte(s), geen non-manifold, dicht",
@@ -746,8 +753,16 @@ if __name__ == "__main__":
     _hol = bool(globals().get("HOL", True))
     _fcstd = bool(globals().get("FCSTD", True))
     _label = bool(globals().get("LABEL", True))
+    _klok = bool(globals().get("KLOK", True))
+    _maten = None
+    if globals().get("KLOKTIJD"):
+        _uur, _minuut = (int(x) for x in str(globals()["KLOKTIJD"]).split(":"))
+        if not (0 <= _minuut < 60):
+            raise ValueError(f"KLOKTIJD {globals()['KLOKTIJD']!r}: minuten van 0 tot 59")
+        _maten = {"klok_uur": _uur % 12, "klok_minuut": _minuut}
     _t0 = time.time()
-    _r = bouw(_schaal, _variant, _geleding, _aandik, _hol, opslaan=True, fcstd=_fcstd, label=_label)
+    _r = bouw(_schaal, _variant, _geleding, _aandik, _hol, opslaan=True, fcstd=_fcstd, label=_label, klok=_klok,
+              maten=_maten)
     _bb = _r["toren"].BoundBox
     print(f"Domtoren {_variant} 1:{_getal(_schaal)}: {_bb.XLength:.2f} x {_bb.YLength:.2f} x {_bb.ZLength:.2f} mm, "
           f"bouwen {_r['tijd_bouw']:.1f} s, met opslaan {time.time() - _t0:.1f} s")

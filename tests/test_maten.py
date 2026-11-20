@@ -9,7 +9,7 @@ from maten_domtoren import BRONNEN, GELEDINGEN, KENMERKEND, LIJSTEN, MATEN
 
 TOP = 112320
 PROJECT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ZEKERHEDEN = {"gemeten", "publicatie", "foto", "foto, gecorrigeerd", "geschat"}
+ZEKERHEDEN = {"gemeten", "publicatie", "foto", "foto, gecorrigeerd", "geschat", "keuze"}
 
 
 def _bronnen_md():
@@ -114,7 +114,8 @@ def test_lijsten_binnen_toren():
 
 
 def test_kenmerkend_bekend():
-    toegestaan = {"pinakel", "lantaarn_open", "galmgat", "doorgang", "steunbeer", "hoofdlijst", "balustrade", "bekroning"}
+    toegestaan = {"pinakel", "lantaarn_open", "galmgat", "doorgang", "steunbeer", "hoofdlijst", "balustrade", "bekroning",
+                  "klok"}
     assert KENMERKEND and KENMERKEND <= toegestaan
 
 

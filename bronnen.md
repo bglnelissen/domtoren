@@ -12,6 +12,7 @@ Zekerheid:
 - **foto, gecorrigeerd**: als foto, maar het onderdeel staat schuin in het aanzicht; de gemeten breedte is teruggerekend
   naar de echte breedte (staat in de kolom bron hoe).
 - **geschat**: afgeleid of ingeschat; staat in de kolom bron hoe.
+- **keuze**: geen maat van de toren maar een keuze (zoals de stand van de wijzers); staat in de kolom bron wie.
 
 Licentiebeleid (Bas, 2026-11-19: "netjes bronnen bijhouden, licenties netjes volgen, alles zo open en beschikbaar
 mogelijk"): voorkeur voor publiek domein, CC0, CC BY en open overheidsdata. Uit een publicatie met auteursrecht nemen we
@@ -220,6 +221,18 @@ worden.
 | `galmgat2_zuid_lichten` | 2 | [HP1965] het zuidelijke galmgat is tweedelig | publicatie |
 | `galmgat2_staaf_b` | 300 | [HUA1899B] stijlen tussen de lichten van het galmgat (x 898-918 en 983-1003), 20 px bij 15,7 mm/px | foto |
 | `dwarslijst2_z` | 52 000 | [HUA1899B]; [HP1965] "op ca. 2/5 van de hoogte" (dat geeft ± 50 900) | foto |
+| `klok_aantal` | 4 | [DUIC2026] "De Domtoren telt in totaal vier wijzerplaten, één voor elke windrichting"; [ERFGOED] (uurwerk) "de assen van de 4 wijzerplaten" | publicatie |
+| `klok_d` | 4 000 | [DUIC2026] "met elk een diameter van zo'n vier meter"; [FOTO2025] het kader is 71 px breed, even breed als het galmgat (`galmgat2_b`); dat geeft de schaal 56 mm/px voor de andere klokmaten | publicatie |
+| `klok_z0` | 52 000 | [FOTO2025] de onderkant van het kader staat op de dwarslijst in het galmgat (`dwarslijst2_z`); [ERFGOED] (uurwerk): het wijzerwerk zit op ± 50 m | foto |
+| `klok_kader_b` | 100 | [FOTO2025] staaf van het vierkante kader, ± 1,8 px bij 56 mm/px (net te zien, onzeker) | foto |
+| `klok_ring_b` | 600 | [FOTO2025] ring met de cijfers: buiten 69,5 px (3 890), binnen 48 px (2 700) | foto |
+| `klok_wijzer_b` | 250 | [FOTO2025] ± 4,5 px; de echte wijzers zijn versierd, hier rechte wijzers met een punt | foto |
+| `klok_minuutwijzer_l` | 1 770 | [FOTO2025] 31,7 px vanaf het midden (reikt tot in de ring) | foto |
+| `klok_uurwijzer_l` | 1 210 | [FOTO2025] 21,7 px vanaf het midden | foto |
+| `klok_naaf_d` | 400 | [AFLEIDING] naaf in het midden, ± 7 px op [FOTO2025] | geschat |
+| `klok_dikte` | 150 | [AFLEIDING] dikte van kader, ring en wijzers loodrecht op de gevel; geen bron | geschat |
+| `klok_uur` | 4 | [KEUZE] 16 minuten over 4 (Bas, 20-11: "de klok mag 16 min over 4 aangeven"); op [FOTO2025] half tien | keuze |
+| `klok_minuut` | 16 | [KEUZE] zie `klok_uur` | keuze |
 | `waterlijst2_h` | 920 | [AFLEIDING] verschil van twee getallen uit [HP1965]: achtkant begint op 69 000, tweede vierkant eindigt op 68 080; dat dit de waterlijst en de omgangsvloer zijn is een aanname | geschat |
 | `balustrade2_h` | 3 500 | [HUA1899B]; [FOTO2025] 3 500 | foto |
 | `pinakel2_h` | 6 400 | [HUA1899B] | foto |
@@ -390,6 +403,8 @@ Geraadpleegd op 2026-11-19, tenzij anders vermeld.
 - Licentie: **CC0 1.0** (publiek-domeinverklaring). Geen naamsvermelding verplicht.
 - Gebruikt voor: controle na de restauratie van `balustrade1_h`, `pinakel1_h`, `balustrade2_h`, `pinakel3_h` en de
   breedte van de lantaarn (schaal: hoogte tweede vierkant 29 480).
+- Ook gebruikt (20-11) voor de klok: `klok_z0`, `klok_kader_b`, `klok_ring_b`, `klok_wijzer_b`,
+  `klok_minuutwijzer_l`, `klok_uurwijzer_l` (schaal: kader = `klok_d` = 71 px, 56 mm/px).
 
 ### [BAG] Basisregistratie Adressen en Gebouwen, pand 0344100000039864
 - Kadaster, via PDOK WFS https://service.pdok.nl/lv/bag/wfs/v2_0 (bouwjaar 1382, "Pand in gebruik").
@@ -443,12 +458,30 @@ Geraadpleegd op 2026-11-19, tenzij anders vermeld.
 - Gebruikt voor: `steunbeer1_noord_b`, `nis1n_klein_b`, `dam1n_naast_b`, `nis1n_groot_b` (geschaald op de gevelbreedte
   19 300 = 934 px in de verkleinde weergave); bevestigt `dam1_b`. De maatgetallen op de tekening zijn niet afgelezen.
 
+### [DUIC2026] DUIC, berichten over de wijzerplaten van de Domtoren (2026)
+- DUIC (De Utrechtse Internet Courant), "Update: wijzer van klok Domtoren gevallen; andere klokken blijken veilig na
+  controle", 8-1-2026, https://www.duic.nl/algemeen/algemeen/58847/wijzer-van-klok-op-domtoren-afgevallen-uurwerk-wordt-gecontro
+  ("De Domtoren telt in totaal vier wijzerplaten, één voor elke windrichting"; de wijzer aan de westzijde, ± 70-80 kg);
+  en "Foto's: Domtoren in Utrecht krijgt wijzerplaten terug",
+  https://www.duic.nl/algemeen/algemeen/54986/fotos-domtoren-in-utrecht-krijgt-wijzerplaten-terug ("De vier
+  wijzerplaten, met elk een diameter van zo'n vier meter, werden in 2019 verwijderd voor restauratie"). Geraadpleegd
+  2026-11-20 (via de zoekresultaten van Kagi; het tweede bericht alleen als samenvatting gelezen).
+- Licentie: **auteursrecht, alleen geraadpleegd**. Alleen feiten overgenomen (aantal en diameter).
+- Ook geraadpleegd: Erfgoed Utrecht, "Het uurwerk van de Domtoren",
+  https://erfgoed.utrecht.nl/verhalen/domtoren/het-uurwerk-van-de-domtoren (uurwerk van A. Borrel, 1859; wijzerwerk in
+  de 'Kap Beierij' op 50 m; "de assen van de 4 wijzerplaten"); valt onder [ERFGOED], auteursrecht, alleen feiten.
+- Gebruikt voor: `klok_aantal`, `klok_d`. De vorm en de andere maten van de klok komen van [FOTO2025].
+
+### [KEUZE] Keuze van Bas
+- Geen bron: een keuze voor het model, geen maat van de toren. Zekerheid `keuze`.
+- Gebruikt voor: `klok_uur`, `klok_minuut` (20-11: "de klok mag 16 min over 4 aangeven").
+
 ### [AFLEIDING] Afgeleid of geschat in dit project
 - Claude, 2026-11-19 (taak 1 en herstelronde 1). Geen externe bron: een berekening of aanname op basis van de bronnen die
   in de tabel bij de maat staan. Altijd zekerheid `geschat`.
 - Gebruikt voor: `steunbeer1_diepte`, `nis2_diepte`, `galmgat2_zuid_b`, `waterlijst2_h`, `spits_voet_b`; taak 5:
   `nis1_boven_kruin_z`, `doorgangsnis_kruin_z`, `balustrade_dikte`; taak 6: `lantaarn_wand`, `hoekpijler_l_uitsprong`,
-  `galmgat_l_dwarsregel_z`.
+  `galmgat_l_dwarsregel_z`; de klok (20-11): `klok_naaf_d`, `klok_dikte`.
 
 ### Gevonden, nog niet gebruikt
 - Het Utrechts Archief, opstanden met maten door J. van Maurik (1830-1840): eerste geleding west 216374, noord 216383,
@@ -489,6 +522,7 @@ versie van 1920 px breed, de doorsnede op ware grootte).
   hoekpijlers, de blinde traceringen in de vensterbank en de traptoren bij de zuidoostelijke hoekpijler zijn niet
   gebouwd. Spits: de vier dakkapellen (`dakkapellen_aantal`) hebben geen maten en zijn niet gebouwd. Bekroning: de
   windvaan en de vorm van de knop.
+- Klok (20-11): niet gebouwd zijn de cijfers op de ring (gouden balkjes), de versierde vorm van de wijzers (nu recht met een punt), de ronde ornamenten in de hoeken tussen kader en ring, en de wijzerplaat aan de zuidkant is even groot genomen als de andere (het galmgat is daar smaller, `galmgat2_zuid_b` is geschat). Dikte en naaf zijn geschat.
 
 ## Licentie van het model
 

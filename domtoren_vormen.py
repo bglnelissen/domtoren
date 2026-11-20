@@ -579,6 +579,20 @@ def tracering(m: dict, g: Grenzen, opening_b: float, z_onder: float, kruin: floa
     return vorm
 
 
+def galmgat_besluit(m: dict, geleding: dict, g: Grenzen, gevel: str = "west", vak: dict | None = None) -> tuple:
+    """(besluit, vak, eigen) van het galmgat in `gevel`: opening_besluit met de opening (galmgat2_b, zuid
+    galmgat2_zuid_b) x de hoogte van de middennis, als stijl de versterking ernaast (steunbeer2_tussen_b), als vak de
+    middennis plus die versterking, kenmerkend ("galmgat"). Gedeeld door galmgat() en klok()."""
+    cfg = GEVELS[geleding["naam"]]
+    eigen = {**cfg["galmgat"], **cfg["galmgat"].get(gevel, {})}
+    vak = vak or next(v for v in gevelindeling(m, geleding["naam"], gevel) if v["soort"] == "galmgat")
+    z0, kruin_nis = _rij_hoogtes(m, cfg["rijen"][0])
+    stijl = m["steunbeer2_tussen_b"]
+    besluit = opening_besluit(m[eigen["opening"]], kruin_nis - z0, stijl, vak["b"] + stijl, m[cfg["nis_diepte"]],
+                              "galmgat" in KENMERKEND, g)
+    return besluit, vak, eigen
+
+
 def galmgat(m: dict, geleding: dict, g: Grenzen, gevel: str = "west", vak: dict | None = None) -> Vorm:
     """Het galmgat in de middennis van een gevel van `geleding` (vierkant_2), op de westgevel gebouwd.
 
@@ -592,13 +606,10 @@ def galmgat(m: dict, geleding: dict, g: Grenzen, gevel: str = "west", vak: dict 
     De top van de opening ligt de breedte van een dagkant ((middennis - opening) / 2) onder de top van de middennis.
     """
     cfg = GEVELS[geleding["naam"]]
-    eigen = {**cfg["galmgat"], **cfg["galmgat"].get(gevel, {})}
-    vak = vak or next(v for v in gevelindeling(m, geleding["naam"], gevel) if v["soort"] == "galmgat")
+    besluit, vak, eigen = galmgat_besluit(m, geleding, g, gevel, vak)
     half, d = geleding["breedte"] / 2, m[cfg["nis_diepte"]]
     z0, kruin_nis = _rij_hoogtes(m, cfg["rijen"][0])
-    b_open, staaf = m[eigen["opening"]], m[eigen["staaf"]]
-    stijl = m["steunbeer2_tussen_b"]
-    besluit = opening_besluit(b_open, kruin_nis - z0, stijl, vak["b"] + stijl, d, "galmgat" in KENMERKEND, g)
+    staaf = m[eigen["staaf"]]
     nis_b = max(vak["b"], besluit.opening_b)
     vorm = Vorm(rapport=[("galmgat", besluit.status, vak["naam"])])
     middennis = detail_besluit(min(nis_b, d), kruin_nis - z0, False, g)
@@ -690,6 +701,103 @@ def gevel_vorm(m: dict, geleding: dict, g: Grenzen, gevel: str) -> Vorm:
     v = samen([travee(m, geleding, g, vak, gevel) for vak in gevelindeling(m, geleding["naam"], gevel)])
     return Vorm(plus=[naar_gevel(s, gevel) for s in v.plus], min=[naar_gevel(s, gevel) for s in v.min],
                 bewaar=[naar_gevel(s, gevel) for s in v.bewaar], rapport=v.rapport)
+
+
+# ---------------------------------------------------------------- de klok (20-11)
+
+# In elk galmgat van vierkant_2 (klok_aantal, één per windrichting) een wijzerplaat: een vierkant kader van klok_d op de
+# dwarslijst (klok_z0), daarin een ring (de wijzerplaat met de cijfers) die het kader raakt, een naaf en twee wijzers
+# op klok_uur:klok_minuut. Alles klok_dikte dik, in het vlak van de achterkant van de middennis: half ervoor (in de
+# middennis) en half erachter (in de galmopening, waar het tegen de stijlen van de tracering en de dagkanten van de
+# opening zit). Het is `bewaar`: het blijft staan waar de middennis en de galmopening het lichaam weghalen.
+
+def klok_maten(m: dict, g: Grenzen) -> dict:
+    """De maten van de klok na de regels, met de status per stuk.
+
+    Kader, ring, wijzers en dikte: `detail_besluit`, kenmerkend als "klok" in KENMERKEND staat (dan zoals of
+    aangedikt; niet kenmerkend of niveau 0 kan een stuk vervallen). De ring raakt het kader: buitenstraal klok_d / 2
+    min een halve kaderstaaf. Wijzers: `vervalt` als het gat in de ring (straal) kleiner is dan de wijzerbreedte, of als
+    het gat zelf dichtgaat. Het gat in de ring gaat dicht (`dicht`) als het smaller is dan min_xy. De hoeken tussen kader
+    en ring zijn open als daar minstens min_xy ruimte is, anders gevuld (`dicht`).
+    """
+    kenmerkend = "klok" in KENMERKEND
+    kader = detail_besluit(m["klok_kader_b"], m["klok_kader_b"], kenmerkend, g)
+    ring = detail_besluit(m["klok_ring_b"], m["klok_ring_b"], kenmerkend, g)
+    wijzer = detail_besluit(m["klok_wijzer_b"], m["klok_wijzer_b"], kenmerkend, g)
+    dikte = detail_besluit(m["klok_dikte"], m["klok_d"], kenmerkend, g)
+    b = m["klok_d"]
+    k = kader.breedte
+    r_buiten = b / 2 - k / 2
+    r_binnen = r_buiten - ring.breedte
+    gat = "open" if 2 * r_binnen >= g.min_xy else "dicht"
+    hoek_ruimte = (b / 2 - k) * math.sqrt(2) - r_buiten
+    hoeken = "open" if hoek_ruimte >= g.min_xy else "dicht"
+    if gat == "dicht" or r_binnen < wijzer.breedte or "vervalt" in (wijzer.status, ring.status):
+        wijzers = "vervalt"
+    else:
+        wijzers = wijzer.status
+    statussen = [kader.status, ring.status, dikte.status]
+    status = ("vervalt" if "vervalt" in statussen else "aangedikt" if "aangedikt" in statussen else "zoals")
+    return {"b": b, "kader": k, "r_buiten": r_buiten, "r_binnen": r_binnen, "wijzer_b": wijzer.breedte,
+            "naaf_r": max(m["klok_naaf_d"], 1.5 * wijzer.breedte) / 2, "dikte": dikte.breedte, "status": status,
+            "wijzers": wijzers, "gat": gat, "hoeken": hoeken}
+
+
+def _klok_schijf(r: float, x0: float, t: float, zc: float) -> Part.Shape:
+    """Cilinder met straal r, as langs X van x0 tot x0 + t, midden op y = 0, z = zc."""
+    return Part.makeCylinder(r, t, V(x0, 0, zc), V(1, 0, 0))
+
+
+def _klok_wijzer(lengte: float, breedte: float, hoek: float, x0: float, t: float, zc: float) -> Part.Shape:
+    """Een wijzer van het midden tot `lengte`, `breedte` breed met een punt van 45 graden, onder `hoek` graden met de
+    klok mee vanaf 12 uur, gezien van buiten de westgevel (rechts is daar -y)."""
+    a = math.radians(hoek)
+    r = V(0, -math.sin(a), math.cos(a))       # langs de wijzer
+    q = V(0, math.cos(a), math.sin(a))        # dwars erop
+    punt = max(lengte - breedte / 2, 0.0)
+    c = V(x0, 0, zc)
+    pts = [c + q * (breedte / 2), c + r * punt + q * (breedte / 2), c + r * lengte, c + r * punt - q * (breedte / 2),
+           c - q * (breedte / 2)]
+    vlak = Part.Face(Part.makePolygon(pts + [pts[0]]))
+    return vlak.extrude(V(t, 0, 0))
+
+
+def klok(m: dict, geleding: dict, g: Grenzen, gevel: str = "west") -> Vorm:
+    """De klok in het galmgat van `gevel` (vierkant_2), op de westgevel gebouwd; zie klok_maten() voor de regels.
+
+    Het kader is minstens zo breed als de galmopening na het besluit (galmgat_besluit), zodat het ook bij een
+    aangedikte opening tegen de dagkanten zit. Rapport: ("klok", status, "klok_<gevel>") en ("wijzers", status,
+    "wijzers_<gevel>")."""
+    km = klok_maten(m, g)
+    vorm = Vorm(rapport=[("klok", km["status"], f"klok_{gevel}"), ("wijzers", km["wijzers"], f"wijzers_{gevel}")])
+    if km["status"] == "vervalt":
+        return vorm
+    besluit, _, _ = galmgat_besluit(m, geleding, g, gevel)
+    half, d = geleding["breedte"] / 2, m[GEVELS[geleding["naam"]]["nis_diepte"]]
+    t = km["dikte"]
+    x0 = max(-half + d - t / 2, -half)              # half in de middennis, nooit voor het gevelvlak
+    b = max(km["b"], besluit.opening_b)
+    k, z0 = km["kader"], m["klok_z0"]
+    zc = z0 + b / 2
+    stukken = []
+    kader = Part.makeBox(t, b, b, V(x0, -b / 2, z0))
+    binnen = Part.makeBox(t + 2, b - 2 * k, b - 2 * k, V(x0 - 1, -b / 2 + k, z0 + k))
+    stukken.append(kader.cut(binnen))
+    r_buiten = b / 2 - k / 2
+    r_binnen = r_buiten - (km["r_buiten"] - km["r_binnen"])
+    if km["hoeken"] == "dicht":
+        stukken.append(binnen.common(Part.makeBox(t, b, b, V(x0, -b / 2, z0))).cut(_klok_schijf(r_buiten, x0 - 1, t + 2, zc)))
+    ring = _klok_schijf(r_buiten, x0, t, zc)
+    if km["gat"] == "open":
+        ring = ring.cut(_klok_schijf(r_binnen, x0 - 1, t + 2, zc))
+    stukken.append(ring)
+    if km["wijzers"] != "vervalt":
+        stukken.append(_klok_schijf(km["naaf_r"], x0, t, zc))
+        uur, minuut = m["klok_uur"], m["klok_minuut"]
+        stukken.append(_klok_wijzer(m["klok_minuutwijzer_l"], km["wijzer_b"], minuut * 6, x0, t, zc))
+        stukken.append(_klok_wijzer(m["klok_uurwijzer_l"], km["wijzer_b"], (uur % 12 + minuut / 60) * 30, x0, t, zc))
+    vorm.bewaar.extend(naar_gevel(s, gevel) for s in stukken)
+    return vorm
 
 
 # ---------------------------------------------------------------- omgangen: balustrades en pinakels (taak 5)
@@ -1116,6 +1224,12 @@ def bouw_gevels(gl: dict, geledingen: dict, m: dict, g: Grenzen) -> Vorm:
     return samen([gevel_vorm(m, gl, g, gevel) for gevel in ("west", "zuid", "oost", "noord")])
 
 
+def bouw_klokken(gl: dict, geledingen: dict, m: dict, g: Grenzen) -> Vorm:
+    """De klok in de galmgaten van vierkant_2: klok_aantal wijzerplaten, in de volgorde west, zuid, oost, noord."""
+    n = int(round(m["klok_aantal"]))
+    return samen([klok(m, gl, g, gevel) for gevel in ("west", "zuid", "oost", "noord")[:n]])
+
+
 def bouw_omgang(gl: dict, geledingen: dict, m: dict, g: Grenzen) -> Vorm:
     """De omgang(en) die op deze geleding staan (OMGANGEN): balustrade en pinakels."""
     return samen([omgang_vorm(m, o, geledingen, g) for o in OMGANGEN.values() if o["geleding"] == gl["naam"]])
@@ -1139,12 +1253,13 @@ def bouw_bekroning(gl: dict, geledingen: dict, m: dict, g: Grenzen) -> Vorm:
 ONDERDELEN = {
     "onderbouw": [bouw_doorgang],
     "vierkant_1": [bouw_steunberen, bouw_gevels, bouw_omgang],
-    "vierkant_2": [bouw_steunberen, bouw_gevels],
+    "vierkant_2": [bouw_steunberen, bouw_gevels, bouw_klokken],
     "lantaarn": [bouw_omgang, bouw_lantaarn],
     "bekroning": [bouw_bekroning],
 }
 
 
-def onderdelen(naam: str) -> list:
-    """De bouwers van de geleding `naam`: eerst de hoofdlijsten, dan wat ONDERDELEN voor die geleding noemt."""
-    return [bouw_hoofdlijsten] + ONDERDELEN.get(naam, [])
+def onderdelen(naam: str, klok: bool = True) -> list:
+    """De bouwers van de geleding `naam`: eerst de hoofdlijsten, dan wat ONDERDELEN voor die geleding noemt. Met
+    `klok` = False zonder bouw_klokken (instelling KLOK van het bouwscript)."""
+    return [bouw_hoofdlijsten] + [b for b in ONDERDELEN.get(naam, []) if klok or b is not bouw_klokken]
