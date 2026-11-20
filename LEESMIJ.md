@@ -17,7 +17,9 @@ neerzetten) en `images/dom-tower-render.png` (render van G 1:100 met PyVista). C
 
 - **Geschiedenis:** opnieuw begonnen met één schone commit, want in de oude stond het privé e-mailadres van Bas. De oude
   geschiedenis (29 commits, 19-20 november) staat in `domtoren-geschiedenis-tot-2026-11-20.bundle` (niet in git;
-  bekijken met `git clone domtoren-geschiedenis-tot-2026-11-20.bundle oud`).
+  bekijken met `git clone domtoren-geschiedenis-tot-2026-11-20.bundle oud`). De oude repo heet nu
+  `bglnelissen/domtoren-oud` (privé; mag weg: `gh auth refresh -s delete_repo`, dan `gh repo delete bglnelissen/domtoren-oud`).
+  Een nieuwe repo was nodig: na een force push toont GitHub de oude commits nog via de activiteitenpagina.
 - **Committen alleen met** `B. Nelissen <6543659+bglnelissen@users.noreply.github.com>`, nooit met het privé adres.
   De gitdir staat per Mac buiten iCloud (`~/.local/share/sdd-git/domtoren.git`, zie het bestand `.git`) en heeft dit
   adres in zijn eigen config. **Op de Mini M4 staat daar nog de oude geschiedenis:** eerst
